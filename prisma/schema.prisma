@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String       @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  username             String       @unique
+  avatar               String
+  role                 String
+  email                String       @unique
+  password             String
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  isVerified           Boolean      @default(false)
+  verifiedOtp          String?
+  verifiedOtpExpiresAt DateTime?
+  usercourses          UserCourse[] @relation("UserToCourses")
+  reviews              Review[]     @relation("userReview")
+  feedbacks            Feedback[]   @relation("userFeedback")
+  carts                Cart[]       @relation("userCart")
+}
+
+model Topic {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  subTopics   SubTopic[] @relation("TopicSubTopics")
+}
+
+model SubTopic {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  topicId     String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  topic Topic @relation("TopicSubTopics", fields: [topicId], references: [id])
+
+  parentId  String?    @db.ObjectId
+  parent    SubTopic?  @relation("SubTopicSubTopics", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subTopics SubTopic[] @relation("SubTopicSubTopics")
+}
+
+model Course {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  courseContent CourseContent[] @relation("CourseContent")
+  usercourses   UserCourse[]    @relation("UserToCourses")
+  reviews       Review[]        @relation("courseReview")
+  carts         Cart[]          @relation("courseCart")
+}
+
+model CourseContent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  tile        String
+  description String
+  courseid    String   @db.ObjectId
+  course      Course   @relation("CourseContent", fields: [courseid], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserCourse {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  courseId  String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  user   User   @relation("UserToCourses", fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation("UserToCourses", fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  courseId  String   @db.ObjectId
+  rating    Int
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation("userReview", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course Course @relation("courseReview", fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Feedback {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  message   String
+  userId    String   @db.ObjectId
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation("userFeedback", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Cart {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  courseId  String   @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User     @relation("userCart", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course    Course   @relation("courseCart", fields: [courseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
