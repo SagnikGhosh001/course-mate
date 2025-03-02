@@ -74,7 +74,7 @@ export async function POST(request: Request): Promise<Response> {
                 verifiedOtp: verifyCode,
                 isVerified: false,
                 createdAt: new Date(),
-                role: "USER",
+                role: "user",
                 verifiedOtpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
                 password: hashedPassword,
             },

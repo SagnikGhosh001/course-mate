@@ -17,10 +17,10 @@ model User {
   id                   String       @id @default(auto()) @map("_id") @db.ObjectId
   name                 String
   avatar               String?
-  role                 String
+  role                 String       @default("user")
   gender               String
   email                String       @unique
-  password             String
+  password             String?
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
   isVerified           Boolean      @default(false)

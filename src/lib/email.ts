@@ -62,6 +62,6 @@ export async function sendOtpEmail(to: string, name: string, otp: string): Promi
 export async function sendVerificationEmail(to: string, name: string): Promise<void> {
     const subject = "Account Verified";
     const text = `Hello ${name},\n\nYour account has been successfully verified!\n\nBest,\nYour App Team`;
-    const html = `<h1>Congratulations, ${name}!</h1><p>Your account is now verified.</p><p>Best,<br>Your App Team</p>`;
+    const html = `<h1>Congratulations, ${name}!</h1><p>Your account is now verified.</p><p>Best,<br>Your COURSE-MATE Team</p>`;
     await sendEmail({ to, subject, text, html });
   }
