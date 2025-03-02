@@ -37,32 +37,25 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         // check if user already exists with email and is not verified
-        const userWithEmailNotVerified = await prisma.user.findFirst({
+        const userWithEmail = await prisma.user.findUnique({
             where: {
                 email,
-                isVerified: false
             }
         })
-        if (userWithEmailNotVerified) {
-            return Response.json({
-                success: false,
-                message: "This email is already exists but not verified yet"
-            }, { status: 400 })
-        }
-        //check is user already exist with email and verified
-        const userWithEmailVerified = await prisma.user.findFirst({
-            where: {
-                email,
-                isVerified: true
+        if (userWithEmail) {
+            if (!userWithEmail.isVerified) {
+                return Response.json({
+                    success: false,
+                    message: "This email is already exists but not verified yet"
+                }, { status: 400 })
             }
-        })
-        if (userWithEmailVerified) {
-            return Response.json({
-                success: false,
-                message: "THis email is already exist and verified"
-            }, { status: 400 })
+            if (userWithEmail.isVerified) {
+                return Response.json({
+                    success: false,
+                    message: "THis email is already exist and verified"
+                }, { status: 400 })
+            }
         }
-
         // create user
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -84,7 +77,9 @@ export async function POST(request: Request): Promise<Response> {
         return Response.json({
             success: true,
             message: "User Registerd created successfully",
-        },{status:200})
+        }, { status: 200 })
+
+
 
     } catch (error) {
         console.log("error for register user", error);

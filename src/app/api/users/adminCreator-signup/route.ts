@@ -16,7 +16,7 @@ export async function POST(request: Request): Promise<Response> {
     }
     try {
         const body = await request.json();
-        const {role, name, email, password, gender } = body;
+        const { role, name, email, password, gender } = body;
 
         if (!role || !name || !email || !password || !gender) {
             return Response.json(
@@ -59,31 +59,28 @@ export async function POST(request: Request): Promise<Response> {
             }, { status: 401 })
         }
         // check if user already exists with email and is not verified
-        const userWithEmailNotVerified = await prisma.user.findFirst({
+        const userWithEmail = await prisma.user.findUnique({
             where: {
                 email,
-                isVerified: false
             }
         })
-        if (userWithEmailNotVerified) {
-            return Response.json({
-                success: false,
-                message: "This email is already exists but not verified yet"
-            }, { status: 400 })
+        if (userWithEmail) {
+            if (!userWithEmail.isVerified) {
+                return Response.json({
+                    success: false,
+                    message: "This email is already exists but not verified yet"
+                }, { status: 400 })
+            }
+            //check is user already exist with email and verified
+            if (userWithEmail.isVerified) {
+                return Response.json({
+                    success: false,
+                    message: "This email is already exist and verified"
+                }, { status: 400 })
+            }
+
         }
-        //check is user already exist with email and verified
-        const userWithEmailVerified = await prisma.user.findFirst({
-            where: {
-                email,
-                isVerified: true
-            }
-        })
-        if (userWithEmailVerified) {
-            return Response.json({
-                success: false,
-                message: "This email is already exist and verified"
-            }, { status: 400 })
-        }    
+
         // create user
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await prisma.user.create({
@@ -98,7 +95,7 @@ export async function POST(request: Request): Promise<Response> {
             },
         })
         //send email
-        await sendVerificationEmailAdminAndCreator(user.email, user.name,role, password);
+        await sendVerificationEmailAdminAndCreator(user.email, user.name, role, password);
         return Response.json({
             success: true,
             message: "User Registerd created successfully",
