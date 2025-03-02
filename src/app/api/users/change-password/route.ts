@@ -48,6 +48,12 @@ export async function PUT(
                 message: "User not found"
             }, { status: 404 })
         }
+        if (!updateuser.password) {
+            return Response.json({
+                success: false,
+                message: "Password not found"
+            }, { status: 404 })
+        }
         const ispasswordcorrect = await bcrypt.compare(password, updateuser.password)
         if (!ispasswordcorrect) {
             return Response.json({
