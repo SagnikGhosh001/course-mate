@@ -2,10 +2,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options"; 
 import { prisma } from "@/lib/prisma";
 
+const userFields = {
+    id: true,
+    name: true,
+    avatar: true,
+    role: true,
+    gender: true,
+    email: true,
+    createdAt: true,
+    updatedAt: true,
+    isVerified: true,
+  };
+
 export async function GET() {
 
     const session = await getServerSession(authOptions)
-    if (!session || !session.user || !session.user.id) {
+    if (!session || !session.user || !session.user.id || session.user.role !== "admin") {
         return Response.json({
             success: false,
             message: "Unauthorized"
@@ -16,7 +28,8 @@ export async function GET() {
         const alladmin=await prisma.user.findMany({
             where:{
                 role:"admin"
-            }
+            },
+            select:userFields
         })
         return Response.json({
             success:alladmin.length > 0,

@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/options"; 
+import { authOptions } from "../../auth/[...nextauth]/options"; 
 import { prisma } from "@/lib/prisma";
-
 
 const userFields = {
     id: true,
@@ -15,30 +14,39 @@ const userFields = {
     isVerified: true,
   };
 
-export async function GET() {
-
+export async function GET(
+    request: Request,
+    { params }: { params: { userid: string } }
+) {
     const session = await getServerSession(authOptions)
+    const userid=params.userid
     if (!session || !session.user || !session.user.id) {
         return Response.json({
             success: false,
             message: "Unauthorized"
         }, { status: 401 })
     }
-    try {
-        // find all creators
-        const allcreator=await prisma.user.findMany({
-            where:{
-                role:"creator"
+    try {    
+        // find user by id
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userid,
             },
-            select:userFields
+            select: userFields
         })
+        if (!user) {
+            return Response.json({
+                success: false, 
+                message: "user not found"
+            }, { status: 404 })
+        }
         return Response.json({
-            success:allcreator.length > 0,
-            message:allcreator.length>0?"all user found successfully":"no user found",
-            creators:allcreator
-        },{status: allcreator.length > 0 ? 200 : 404})
+            success: true,
+            message: "user found successfully",
+            user: user
+        }, { status: 200 })
 
-    } catch (error) {
+    } catch (error) {    
         console.log('error to find user', error);
         return Response.json({
             success: false,

@@ -2,6 +2,18 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options"; 
 import { prisma } from "@/lib/prisma";
 
+const userFields = {
+    id: true,
+    name: true,
+    avatar: true,
+    role: true,
+    gender: true,
+    email: true,
+    createdAt: true,
+    updatedAt: true,
+    isVerified: true,
+  };
+
 export async function GET() {
 
     const session = await getServerSession(authOptions)
@@ -16,7 +28,8 @@ export async function GET() {
         const alluser=await prisma.user.findMany({
             where:{
                 role:"user"
-            }
+            },
+            select:userFields
         })
         return Response.json({
             success:alluser.length > 0,

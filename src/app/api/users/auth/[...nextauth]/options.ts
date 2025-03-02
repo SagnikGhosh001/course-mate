@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 declare module "next-auth" {
     interface Session {
@@ -13,7 +13,9 @@ declare module "next-auth" {
         email: string;
         name: string;
         role: string;
-        gender?: string;
+        gender: string;
+        isVerified: boolean;
+        avatar?: string | null
       };
     }
   
@@ -22,7 +24,9 @@ declare module "next-auth" {
       email: string;
       name: string;
       role: string;
-      gender?: string;
+      gender: string;
+      isVerified: boolean;
+      avatar?: string |null
     }
   }
   
@@ -32,12 +36,16 @@ declare module "next-auth" {
       email: string;
       name: string;
       role: string;
-      gender?: string;
+      gender: string;
+      isVerified: boolean;
+      avatar?: string | null
     }
   }
 
 export const authOptions: NextAuthOptions = {
+    adapter: PrismaAdapter(prisma),
     providers: [
+        
         CredentialsProvider({
             id: 'credentials',
             name: 'Credentials',
@@ -64,6 +72,9 @@ export const authOptions: NextAuthOptions = {
                     if (!user.isVerified) {
                         throw new Error('User not verified')
                     }
+                    if(!user.password){
+                        throw new Error('Password not found')
+                    }
                     const ispasswordcorrect = await bcrypt.compare(credentials.password, user.password)
                     if (!ispasswordcorrect) {
                         throw new Error('Password is incorrect')
@@ -88,7 +99,9 @@ export const authOptions: NextAuthOptions = {
             if (account?.provider === "google") {
                 await prisma.user.update({
                     where: { id: user.id },
-                    data: { isVerified: true },
+                    data: { isVerified: true,
+                        gender: "unknown"
+                     },
                 });
             }
             return true
@@ -100,6 +113,8 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id
                 session.user.role = token.role
                 session.user.gender=token.gender
+                session.user.isVerified=token.isVerified
+                session.user.avatar=token.avatar
             }
             return session
         },
@@ -110,6 +125,8 @@ export const authOptions: NextAuthOptions = {
                 token.name=user.name
                 token.role=user.role
                 token.gender=user.gender
+                token.isVerified=user.isVerified
+                token.avatar=user.avatar
             }
             return token
         }
