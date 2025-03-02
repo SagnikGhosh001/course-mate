@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailValidation, nameValidation, passwordValidation, usernameValidation } from "./userSchema";
+import { emailValidation, genderValidation, nameValidation, passwordValidation } from "./userSchema";
 
 
 
@@ -7,11 +7,11 @@ import { emailValidation, nameValidation, passwordValidation, usernameValidation
 export const signUpSchema = z.object({
     name: nameValidation,
 
-    username: usernameValidation,
-
     email: emailValidation,
 
-    password: passwordValidation
+    password: passwordValidation,
+
+    gender: genderValidation
 
 
 });

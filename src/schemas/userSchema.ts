@@ -1,15 +1,12 @@
 import { z } from "zod";
 
-export const usernameValidation = z
-    .string()
-    .min(3, "Username Must be ateleast 3 characters")
-    .max(20, "Username Must not be longer that 50 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "username must not contain special characters")
 
 export const nameValidation = z
     .string()
     .min(2, "Name Must be atleast 2 characters")
     .max(50, "Name Must not be longer that 50 characters")
+
+export const genderValidation=z.string()
 
 export const emailValidation = z.string().email({ message: "invalid email address" })
 
