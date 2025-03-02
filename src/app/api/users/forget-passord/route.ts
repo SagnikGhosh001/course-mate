@@ -36,6 +36,12 @@ export async function PUT(
                 message: "User not found"
             }, { status: 404 })
         }
+        if (!updateuser.verifiedOtp) {
+            return Response.json({
+              success: false,
+              message: "No verification code set for this user",
+            }, { status: 400 });
+          }
         if(updateuser.verifiedOtp !== verifycode){
             return Response.json({
                 success: false,
@@ -56,6 +62,8 @@ export async function PUT(
             },
             data: {
                 password: hashedPassword,
+                verifiedOtp: null,
+                verifiedOtpExpiresAt: null
             }
         })
         await forgetPasswordConfirmation(email,password)

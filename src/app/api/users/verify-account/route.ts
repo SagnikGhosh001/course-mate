@@ -62,9 +62,14 @@ export async function POST(request: Request): Promise<Response> {
                 message: "OTP expired"
             }, { status: 400 })
         }
-
+        if (!userWithEmailNotVerified.verifiedOtp) {
+            return Response.json({
+              success: false,
+              message: "No verification code set for this user",
+            }, { status: 400 });
+          }
         //check if otp is not correct
-        if ( userWithEmailNotVerified.verifiedOtp && userWithEmailNotVerified.verifiedOtp !== verifiedOtp) {
+        if (userWithEmailNotVerified.verifiedOtp !== verifiedOtp) {
             return Response.json({
                 success: false,
                 message: "Invalid OTP"

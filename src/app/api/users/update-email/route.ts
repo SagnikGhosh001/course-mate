@@ -53,7 +53,9 @@ export async function PUT(
             },
             data: {
                 email,
-                isVerified: false
+                isVerified: false,
+                verifiedOtp: null,
+                verifiedOtpExpiresAt:null
             }
         })
         return Response.json({
