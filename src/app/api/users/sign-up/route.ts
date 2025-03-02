@@ -79,6 +79,7 @@ export async function POST(request: Request): Promise<Response> {
                 password: hashedPassword,
             },
         })
+        //send email
         await sendOtpEmail(user.email, user.name, verifyCode);
         return Response.json({
             success: true,
