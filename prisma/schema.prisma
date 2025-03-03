@@ -16,7 +16,7 @@ datasource db {
 model User {
   id                   String       @id @default(auto()) @map("_id") @db.ObjectId
   name                 String
-  avatar               String?       
+  avatar               String?
   role                 String       @default("user")
   gender               String       @default("unknown")
   email                String       @unique
@@ -31,30 +31,23 @@ model User {
   feedbacks            Feedback[]   @relation("userFeedback")
   carts                Cart[]       @relation("userCart")
 }
-
 model Topic {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  subTopics   SubTopic[] @relation("TopicSubTopics")
+
+  // Self-referencing relation for nested topics
+  parentId     String?    @db.ObjectId
+  parent       Topic?     @relation("TopicNestedTopics", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  nestedTopics Topic[]    @relation("TopicNestedTopics")
+
+  // Direct relation to courses
+  courses      Course[]   @relation("TopicCourses")
 }
 
-model SubTopic {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String
-  topicId     String   @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  topic Topic @relation("TopicSubTopics", fields: [topicId], references: [id])
-
-  parentId  String?    @db.ObjectId
-  parent    SubTopic?  @relation("SubTopicSubTopics", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subTopics SubTopic[] @relation("SubTopicSubTopics")
-}
 
 model Course {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
@@ -62,6 +55,8 @@ model Course {
   description   String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  topicId       String          @db.ObjectId
+  topic         Topic           @relation("TopicCourses", fields: [topicId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   courseContent CourseContent[] @relation("CourseContent")
   usercourses   UserCourse[]    @relation("UserToCourses")
   reviews       Review[]        @relation("courseReview")

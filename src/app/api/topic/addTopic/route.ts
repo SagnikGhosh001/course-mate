@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const { title, description } = body;
+        const { title, description, topicId } = body;
         if (!title || !description) {
             return Response.json({
                 success: false,
@@ -35,19 +35,31 @@ export async function POST(request: Request) {
                 }
             )
         }
+        if (topicId) {
+            const parentTopic = await prisma.topic.findUnique({
+                where: { id: topicId },
+            });
+            if (!parentTopic) {
+                return Response.json(
+                    { success: false, message: "Parent topic not found" },
+                    { status: 404 }
+                );
+            }
+        }
 
         const topic = await prisma.topic.create({
             data: {
                 title,
                 description,
                 createdAt: new Date(),
+                parentId: topicId || null,
             },
         });
         return Response.json({
             success: true,
             message: "Topic added successfully",
             topic: topic,
-        },{status: 200})
+        }, { status: 200 })
     } catch (error) {
         console.log('error to add topic', error);
         return Response.json({
