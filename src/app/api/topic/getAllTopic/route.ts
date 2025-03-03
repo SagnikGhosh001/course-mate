@@ -14,18 +14,18 @@ export async function GET(){
     try {
         // find all topic
         const alltopic=await prisma.topic.findMany({
+            orderBy: { createdAt: 'desc' },
             include: {
                 parent: true,
                 nestedTopics: true, // Include child topics
                 courses: true,      // Include related courses
-              },
+            },
         })
         return Response.json({
             success:alltopic.length > 0,
             message:alltopic.length>0?"all topic found successfully":"no topic found",
             topic:alltopic
         },{status: alltopic.length > 0 ? 200 : 404})
-
     } catch (error) {
         console.log('error to find topic', error);
         return Response.json({

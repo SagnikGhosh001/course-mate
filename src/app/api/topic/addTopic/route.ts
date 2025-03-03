@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         const result = await addTopicSChema.safeParse(body);
         if (!result.success) {
             const addTopicSChemaError = {
-                tittle: result.error.format().title?._errors.join(", ") || "",
+                title: result.error.format().title?._errors.join(", ") || "",
                 description: result.error.format().description?._errors.join(", ") || "",
             };
             const haserrors = Object.values(addTopicSChemaError).some((x) => x.length > 0)

@@ -31,8 +31,54 @@ export async function GET(
         const user = await prisma.user.findUnique({
             where: {
                 id: userid,
-            },
-            select: userFields
+            },        
+            select: {
+                ...userFields,
+                usercourses:true,
+                carts:{
+                    orderBy: {
+                        createdAt: "desc"
+                    },
+                    select: {
+                        id: true,
+                        course:{
+                            select: {
+                                title:true,
+                                description: true,
+                                createdAt:true
+                            }
+                        },
+                        createdAt: true
+                    }
+                },
+                ownedcourses: {
+                    orderBy: {
+                        createdAt: "desc"
+                    },
+                    select: {
+                        title: true,
+                        description: true,
+                        price: true,
+                        type:true,
+                        createdAt: true,
+                        _count: {
+                            select: {
+                                reviews: true,
+                                courseContent: true,
+                                usercourses: true,
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        carts: true,
+                        ownedcourses: true,
+                        usercourses: true
+                    }
+                }
+            }
+
         })
         if (!user) {
             return Response.json({

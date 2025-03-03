@@ -27,35 +27,39 @@ model User {
   verifiedOtp          String?
   verifiedOtpExpiresAt DateTime?
   usercourses          UserCourse[] @relation("UserToCourses")
+  ownedcourses         Course[]     @relation("ownerUserCourse")
   reviews              Review[]     @relation("userReview")
   feedbacks            Feedback[]   @relation("userFeedback")
   carts                Cart[]       @relation("userCart")
 }
+
 model Topic {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Self-referencing relation for nested topics
-  parentId     String?    @db.ObjectId
-  parent       Topic?     @relation("TopicNestedTopics", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  nestedTopics Topic[]    @relation("TopicNestedTopics")
+  parentId     String? @db.ObjectId
+  parent       Topic?  @relation("TopicNestedTopics", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  nestedTopics Topic[] @relation("TopicNestedTopics")
 
   // Direct relation to courses
-  courses      Course[]   @relation("TopicCourses")
+  courses Course[] @relation("TopicCourses")
 }
-
-
 
 model Course {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   description   String
+  price         String          @default("0")
+  type          String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   topicId       String          @db.ObjectId
+  ownerId       String          @db.ObjectId
+  owner         User            @relation("ownerUserCourse", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   topic         Topic           @relation("TopicCourses", fields: [topicId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   courseContent CourseContent[] @relation("CourseContent")
   usercourses   UserCourse[]    @relation("UserToCourses")

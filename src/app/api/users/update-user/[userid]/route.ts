@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/options";
+import { authOptions } from "../../auth/[...nextauth]/options";
 import { User } from "next-auth";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +7,7 @@ import { updateUserSchema } from "@/schemas/updateUserSchema";
 
 export async function PUT(
     request: NextRequest,
+    {params}: {params:{userid:string}}
 ) {
 
     const session = await getServerSession(authOptions)
@@ -18,9 +19,13 @@ export async function PUT(
         }, { status: 401 })
     }
     try {
-
-
-
+        const userid=params.userid
+        if(user.id!==userid){
+            return Response.json({
+                success: false,
+                message: "Unauthorized"
+            }, { status: 401 })
+        }
         const body = await request.json();
         const { name, gender } = body;
         if (!name || !gender) {
@@ -46,7 +51,7 @@ export async function PUT(
         // Update user
         const updateuser = await prisma.user.findUnique({
             where: {
-                id: user.id,
+                id: userid,
             }
         })
         if (!updateuser) {
@@ -57,7 +62,7 @@ export async function PUT(
         }
         await prisma.user.update({
             where: {
-                id: user.id,
+                id: userid,
             },
             data: {
                 name,

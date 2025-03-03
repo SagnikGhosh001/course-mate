@@ -29,6 +29,7 @@ export async function GET() {
             where:{
                 role:"admin"
             },
+            orderBy: { createdAt: 'desc' },
             select:userFields
         })
         return Response.json({

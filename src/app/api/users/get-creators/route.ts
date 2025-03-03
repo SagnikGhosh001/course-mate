@@ -30,6 +30,7 @@ export async function GET() {
             where:{
                 role:"creator"
             },
+            orderBy: { createdAt: 'desc' },
             select:userFields
         })
         return Response.json({
