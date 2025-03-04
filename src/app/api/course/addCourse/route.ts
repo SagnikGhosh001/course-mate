@@ -64,8 +64,8 @@ export async function POST(request: Request) {
         return Response.json({
             success: true,
             message: "course created successfully",
-            course
-        }, { status: 200 })
+            course:course
+        }, { status: 201 })
     } catch (error) {
         console.log(error);
 
