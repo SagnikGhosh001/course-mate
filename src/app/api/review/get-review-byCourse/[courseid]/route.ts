@@ -12,11 +12,7 @@ export async function GET(request:Request,{params}:{params:{courseid:string}}) {
         const courseid=params.courseid;
         const reviews=await prisma.review.findMany({
             where:{courseId:courseid},
-            select:{
-                message:true,
-                rating:true,
-                createdAt:true,
-                updatedAt:true,
+            include:{
                 user:{
                     select:{
                         name:true,
