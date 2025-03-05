@@ -17,13 +17,7 @@ export async function GET(request:Request,{params}:{params:{courseid:string}}) {
         const courseContent=await prisma.courseContent.findMany({
             where:{courseid},
             orderBy: { createdAt: 'desc' },
-            select:{
-                createdAt:true,
-                description:true,
-                id:true,
-                title:true,
-                updatedAt:true,
-                courseid:true,
+            include:{
                 course:{
                     select:{
                         title:true,
