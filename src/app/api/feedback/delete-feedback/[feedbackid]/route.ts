@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession, User } from "next-auth";
-import { authOptions } from "@/app/api/users/auth/[...nextauth]/options";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 export async function DELETE(request:Request,{params}:{params:{feedbackid:string}}) {
     const session=await getServerSession(authOptions)

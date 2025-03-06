@@ -1,5 +1,5 @@
 import { getServerSession, User } from "next-auth";
-import { authOptions } from "../../users/auth/[...nextauth]/options";
+import { authOptions } from "../../auth/[...nextauth]/options";
 import { addReviewSchema } from "@/schemas/addReviewSchema";
 import { prisma } from "@/lib/prisma";
 

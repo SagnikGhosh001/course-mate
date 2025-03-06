@@ -24,6 +24,7 @@ import { signUpSchema } from "@/schemas/signUpSchema";
 import { useDebounceCallback } from "usehooks-ts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 
@@ -71,8 +72,10 @@ export default function Signup() {
 
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         const result = await dispatch(submitSignupForm(data)).unwrap();
-        toast.success(result.message);
-        router.push("/verify");
+        toast.success("Account created successfully!", {
+            description: result.message,
+        });
+        router.push(`/verify/${data.email}`);
     };
 
     return (
@@ -188,8 +191,19 @@ export default function Signup() {
                                     {status === "failed" && <p className="text-red-500 text-sm">{error}</p>}
                                 </form>
                             </Form>
+                            <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                                <p>Verify your account on <b> verify/youremail@gmail.com</b> before logging in.</p>
+                                <p>
+                                    Already have an account?{" "}
+                                    <Link href="/sign-in" className="text-teal-600 dark:text-teal-400 hover:underline">
+                                        Sign In
+                                    </Link>
+                                </p>
+                            </div>
                         </CardContent>
+
                     </Card>
+
                 </div>
             </section>
 

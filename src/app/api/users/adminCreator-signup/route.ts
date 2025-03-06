@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import bcrypt from "bcryptjs";
 import { getServerSession, User } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/options";
+import { authOptions } from "../../auth/[...nextauth]/options";
 import { sendVerificationEmailAdminAndCreator } from "@/lib/email";
 
 export async function POST(request: Request): Promise<Response> {

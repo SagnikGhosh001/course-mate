@@ -55,24 +55,26 @@ export async function POST(request: Request): Promise<Response> {
                 message: "This email is not registered yet"
             }, { status: 400 })
         }
-        //check if otp is expired
-        if (userWithEmailNotVerified.verifiedOtpExpiresAt && new Date(userWithEmailNotVerified.verifiedOtpExpiresAt).getTime() < Date.now()) {
-            return Response.json({
-                success: false,
-                message: "OTP expired"
-            }, { status: 400 })
-        }
         if (!userWithEmailNotVerified.verifiedOtp) {
             return Response.json({
               success: false,
               message: "No verification code set for this user",
             }, { status: 400 });
           }
+        
+        
         //check if otp is not correct
         if (userWithEmailNotVerified.verifiedOtp !== verifiedOtp) {
             return Response.json({
                 success: false,
                 message: "Invalid OTP"
+            }, { status: 400 })
+        }
+        //check if otp is expired
+        if (userWithEmailNotVerified.verifiedOtpExpiresAt && new Date(userWithEmailNotVerified.verifiedOtpExpiresAt).getTime() < Date.now()) {
+            return Response.json({
+                success: false,
+                message: "OTP expired"
             }, { status: 400 })
         }
         //update user

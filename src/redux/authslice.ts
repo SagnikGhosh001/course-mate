@@ -22,6 +22,48 @@ const initialState: AuthState = {
     error: null,
 };
 
+
+export const sendOtp = createAsyncThunk<
+    { message: string },
+    string,
+    { rejectValue: string }
+>("auth/sendotp", async (email, { rejectWithValue }) => {
+    try {
+        const response = await axios.put("/api/users/send-otp",
+            {email}
+        )
+        return response.data
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+export const verifyOtp = createAsyncThunk<
+    { message: string },
+    { email: string, verifiedOtp: string },
+    { rejectValue: string }
+>("auth/verifyotp", async (userData, { rejectWithValue }) => {
+    try {
+        const response = await axios.post("/api/users/verify-account",
+            userData
+        )
+        return response.data
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+
 export const emailUnique = createAsyncThunk<
     { message: string },
     { email: string },
@@ -79,9 +121,9 @@ const authSlice = createSlice({
             .addCase(submitSignupForm.fulfilled, (state) => {
                 state.status = "succeeded";
             })
-            .addCase(submitSignupForm.rejected, (state) => {
+            .addCase(submitSignupForm.rejected, (state, action) => {
                 state.status = "failed";
-                state.error = "An error occurred";
+                state.error = action.payload as string || "An error occurred";
             })
             .addCase(emailUnique.pending, (state) => {
                 state.status = "loading";
@@ -90,9 +132,35 @@ const authSlice = createSlice({
             .addCase(emailUnique.fulfilled, (state) => {
                 state.status = "succeeded";
             })
-            .addCase(emailUnique.rejected, (state) => {
+            .addCase(emailUnique.rejected, (state, action) => {
                 state.status = "failed";
-                state.error = "An error occurred";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(verifyOtp.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(verifyOtp.fulfilled, (state) => {
+                state.status = "succeeded";
+            })
+            .addCase(verifyOtp.rejected, (state, action) => {
+
+
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(sendOtp.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(sendOtp.fulfilled, (state) => {
+                state.status = "succeeded";
+            })
+            .addCase(sendOtp.rejected, (state, action) => {
+
+
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
             });
     },
 });

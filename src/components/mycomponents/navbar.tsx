@@ -29,7 +29,7 @@ export function Navbar() {
   const { data: session, status } = useSession();
 
   const authNavItems = session
-    ? [{ title: "Dashboard", href: "/dashboard" }, { title: "Logout", href: "#" }]
+    ? [{ title: "Dashboard", href: "/user/dashboard" }, { title: "Logout", href: "#" }]
     : [{ title: "Sign in", href: "/sign-in" }];
 
   return (

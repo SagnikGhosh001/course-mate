@@ -1,5 +1,5 @@
 import { getServerSession, User } from "next-auth";
-import { authOptions } from "../../users/auth/[...nextauth]/options";
+import { authOptions } from "../../auth/[...nextauth]/options";
 import { addCourseContentSchema } from "@/schemas/addCourseContentSchema";
 import { prisma } from "@/lib/prisma";
 

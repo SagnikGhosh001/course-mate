@@ -1,7 +1,7 @@
 import { getServerSession, User } from "next-auth";
 import { addReviewSchema } from "@/schemas/addReviewSchema";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/app/api/users/auth/[...nextauth]/options";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 export async function PUT(request:Request,{params}:{params:{reviewid:string}}) {
     const session=await getServerSession(authOptions)
