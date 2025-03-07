@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
 if (url.pathname.startsWith("/api/auth")) {
   return NextResponse.next();
 }
-  if (!token && (url.pathname.startsWith("/user") || url.pathname.startsWith("/course"))) {
+  if (!token && (url.pathname.startsWith("/user") || url.pathname.startsWith("/course") || url.pathname.startsWith("/admin") || url.pathname.startsWith("/creator"))) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
@@ -27,5 +27,5 @@ if (url.pathname.startsWith("/api/auth")) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/sign-in", "/sign-up", "/", "/user/:path*","/course/:path*", "/verify/:path*,/about,/services,/contact","/not-found"],
+  matcher: ["/sign-in","/admin/:path*", "/sign-up", "/", "/user/:path*", "/creator/:path*","/course/:path*", "/verify/:path*,/about,/services,/contact","/not-found"],
 };
