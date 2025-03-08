@@ -6,7 +6,7 @@ export const nameValidation = z
     .min(2, "Name Must be atleast 2 characters")
     .max(50, "Name Must not be longer that 50 characters")
 
-export const genderValidation=z.string()
+export const genderValidation=z.enum(["male", "female", "other"],{message:"gender must be male or female or other"})
 
 export const emailValidation = z.string().email({ message: "invalid email address" })
 

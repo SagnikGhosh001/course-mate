@@ -5,7 +5,8 @@ import { toast } from "sonner";
 
 
 // Define the expected response from the backend (adjust based on your API)
-interface SignupResponse {
+interface BackendResponse {
+    success: boolean
     message: string
 }
 
@@ -13,7 +14,6 @@ interface SignupResponse {
 interface AuthState {
     status: "idle" | "loading" | "succeeded" | "failed";
     error: string | null;
-
 }
 
 // Initial state
@@ -83,6 +83,31 @@ export const emailUnique = createAsyncThunk<
     }
 });
 
+// Async thunk for submitting submitCreateAdminOrCreatorForm form to backend
+export const submitCreateAdminOrCreatorForm = createAsyncThunk<
+    { message: string },
+    { name: string; email: string; password: string; gender: string,role:string },
+    { rejectValue: string }
+>("auth/submitCreateAdminOrCreatorForm", async (userData, { rejectWithValue }) => {
+    try {
+        const response = await axios.post<BackendResponse>(
+            "http://localhost:3000/api/users/adminCreator-signup",
+            userData
+        );
+
+        return response.data;
+    } catch (error) {
+
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+
 // Async thunk for submitting signup form to backend
 export const submitSignupForm = createAsyncThunk<
     { message: string },
@@ -90,7 +115,7 @@ export const submitSignupForm = createAsyncThunk<
     { rejectValue: string }
 >("auth/submitSignupForm", async (userData, { rejectWithValue }) => {
     try {
-        const response = await axios.post<SignupResponse>(
+        const response = await axios.post<BackendResponse>(
             "http://localhost:3000/api/users/sign-up",
             userData
         );
@@ -122,6 +147,17 @@ const authSlice = createSlice({
                 state.status = "succeeded";
             })
             .addCase(submitSignupForm.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(submitCreateAdminOrCreatorForm.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(submitCreateAdminOrCreatorForm.fulfilled, (state) => {
+                state.status = "succeeded";
+            })
+            .addCase(submitCreateAdminOrCreatorForm.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload as string || "An error occurred";
             })

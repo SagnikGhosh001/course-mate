@@ -43,7 +43,7 @@ export default function Signup() {
             name: "",
             email: "",
             password: "",
-            gender: "male",
+            gender: "male" as "male" | "female" | "other",
         },
     });
 

@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
  */
 export async function sendEmail({ to, subject, text, html }: EmailOptions): Promise<void> {
   const mailOptions = {
-    from: `"Your App" <${process.env.EMAIL_USER}>`,
+    from: `"Course-Mate" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     text,
@@ -66,14 +66,15 @@ export async function sendVerificationEmail(to: string, name: string): Promise<v
     await sendEmail({ to, subject, text, html });
 }
 export async function sendVerificationEmailAdminAndCreator(to: string, name: string,role:string, password:string): Promise<void> {
-    const subject = "Account Verified";
+    const subject = "Register";
     const text = `Hello ${name},\n\nYou are regiter as new ${role}!\n\nBest,\nYour COURSE-MATE Team`;
-    const html = `<h1>Congratulations, ${name}!</h1><p>Your account is now verified.</p><p>For login your is password is ${password}</p><p>Best,<br>Your COURSE-MATE Team</p>`;
+    const html = `<h1>Congratulations, ${name}!</h1><p>You are regiter as new ${role}.</p><p>For login your is password is ${password}</p><p>Best,<br>Your COURSE-MATE Team</p>`;
     await sendEmail({ to, subject, text, html });
 }
 export async function forgetPasswordConfirmation(
   to: string,
-  password: string
+  password: string,
+  name: string
 ): Promise<void> {
   const subject = "Your Password Has Been Reset";
   const text = `

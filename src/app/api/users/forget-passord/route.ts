@@ -66,7 +66,7 @@ export async function PUT(
                 verifiedOtpExpiresAt: null
             }
         })
-        await forgetPasswordConfirmation(email,password)
+        await forgetPasswordConfirmation(email,password,updateuser.name)
         return Response.json({
             success: true,
             message: "User password updated successfully"

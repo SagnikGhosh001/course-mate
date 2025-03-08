@@ -4,7 +4,7 @@ import { emailValidation, genderValidation, nameValidation, passwordValidation }
 
 
 
-export const signUpSchema = z.object({
+export const addAdminOrCreatorSchema = z.object({
     name: nameValidation,
 
     email: emailValidation,
@@ -12,5 +12,5 @@ export const signUpSchema = z.object({
     password: passwordValidation,
 
     gender: genderValidation,
-
+    role:z.enum(["admin", "creator", "user"],{message:"role must be admin or creator or user"}),
 });

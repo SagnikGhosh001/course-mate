@@ -17,31 +17,34 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { addAdminOrCreatorSchema } from "@/schemas/addAdminOrCreatorSchem";
+import { submitCreateAdminOrCreatorForm } from "@/redux/authslice";
+import { useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  role: z.literal("creator"), // Fixed value, only "creator" is allowed
-});
+
 
 export default function AddCreatorPage() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      role: "creator", // Default and fixed value
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    // Simulate form submission (no backend)
-    console.log("Form submitted:", data);
-    toast.success("Creator added successfully! (Simulated)");
-    form.reset(); // Reset form after submission
-  };
+  const dispatch = useDispatch<AppDispatch>();
+    const { status, error } = useSelector((state: RootState) => state.auth);
+  const form = useForm({
+     resolver: zodResolver(addAdminOrCreatorSchema),
+     defaultValues: {
+       name: "",
+       email: "",
+       password: "",
+       gender: "male" as "male" | "female" | "other",
+       role: "creator" as "admin" | "creator" | "user",
+     },
+   });
+ 
+   const onSubmit = async (data: z.infer<typeof addAdminOrCreatorSchema>) => {
+     const response = await dispatch(submitCreateAdminOrCreatorForm(data)).unwrap();
+     toast.success("Creator Account created successfully!", {
+       description: response.message,
+     });
+   };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
@@ -135,10 +138,11 @@ export default function AddCreatorPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-teal-500 text-white hover:bg-teal-600"
+                className="w-full bg-teal-500 text-white hover:bg-blue-600"
               >
-                Add Creator
+                {status === "loading" ? "Loading..." : "Add Creator"}
               </Button>
+              {status === "failed" && <p className="text-red-500 text-sm">{error}</p>}
             </form>
           </Form>
         </CardContent>

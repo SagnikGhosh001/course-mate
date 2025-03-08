@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { signUpSchema } from "@/schemas/signUpSchema";
 import bcrypt from "bcryptjs";
 import { getServerSession, User } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import { sendVerificationEmailAdminAndCreator } from "@/lib/email";
+import { addAdminOrCreatorSchema } from "@/schemas/addAdminOrCreatorSchem";
 
 export async function POST(request: Request): Promise<Response> {
     const session = await getServerSession(authOptions)
@@ -29,13 +29,14 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         // validate with zod
-        const result = await signUpSchema.safeParse(body);
+        const result = await addAdminOrCreatorSchema.safeParse(body);
         if (!result.success) {
             const signUpSchemaError = {
                 name: result.error.format().name?._errors.join(", ") || "",
                 gender: result.error.format().gender?._errors.join(", ") || "",
                 email: result.error.format().email?._errors.join(", ") || "",
                 password: result.error.format().password?._errors.join(", ") || "",
+                role:result.error.format().role?._errors.join(", ")|| " "
             };
             const haserrors = Object.values(signUpSchemaError).some((x) => x.length > 0)
             return Response.json(
@@ -98,7 +99,7 @@ export async function POST(request: Request): Promise<Response> {
         await sendVerificationEmailAdminAndCreator(user.email, user.name, role, password);
         return Response.json({
             success: true,
-            message: "User Registerd created successfully",
+            message: `${role} created successfully, with email ${email} and name ${name}`,
         }, { status: 200 })
 
     } catch (error) {
