@@ -1,3 +1,6 @@
+
+
+
 import { z } from "zod";
 
 import { descriptionValidation, priceValidation, titleValidation, typeValidation } from "./courseSchema";
@@ -6,12 +9,12 @@ import { descriptionValidation, priceValidation, titleValidation, typeValidation
 
 
 
-export const addCourseSChema = z.object({
+export const updateCourseSchema = z.object({
     title:titleValidation,
     description:descriptionValidation,
     price:priceValidation,
     type:typeValidation,
-    topicId:z.string()
+
 
 
 

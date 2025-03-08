@@ -48,7 +48,7 @@ export async function GET(
             return Response.json({
                 success:true,
                 message:"All course found successfully",
-                course
+                topicCourses:course
             },{status:200})
         }
         else{

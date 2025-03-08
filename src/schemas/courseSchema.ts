@@ -11,7 +11,7 @@ export const descriptionValidation = z
     .max(500, "Description must not be Longer than 500 characters")
 export const priceValidation = z
     .string()
-    .min(3, "Description must be atleast 3 characters")
+    .min(1, "Description must be atleast 3 characters")
     .max(500, "Description must not be Longer than 500 characters")
     .regex(/^\d+(\.\d{1,2})?$/, "Price must be a valid number with up to two decimal places");
 export const typeValidation = z

@@ -5,7 +5,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 
 export async function GET(
-    {params}:{params:{ownerid:string}}
 ){
     const session=await getServerSession(authOptions);
     if(!session || !session?.user || !session?.user?.id) {
@@ -15,9 +14,9 @@ export async function GET(
         },{status:401})
     }
     try{
-        const ownerid=params.ownerid
+        
         const course=await prisma.course.findMany({
-            where:{ownerId:ownerid},
+            where:{ownerId:session.user.id},
             orderBy: { createdAt: 'desc' },
             include: {
                 _count: {
@@ -39,6 +38,7 @@ export async function GET(
                         }
                     }
                 },
+                topic:true,
                 reviews:true,
                 courseContent:true
             } 
@@ -47,7 +47,7 @@ export async function GET(
             return Response.json({
                 success:true,
                 message:"All course found successfully",
-                course
+                ownedCourses:course
             },{status:200})
         }
         else{

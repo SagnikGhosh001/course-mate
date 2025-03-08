@@ -91,7 +91,7 @@ export const submitCreateAdminOrCreatorForm = createAsyncThunk<
 >("auth/submitCreateAdminOrCreatorForm", async (userData, { rejectWithValue }) => {
     try {
         const response = await axios.post<BackendResponse>(
-            "http://localhost:3000/api/users/adminCreator-signup",
+            "/api/users/adminCreator-signup",
             userData
         );
 
@@ -116,7 +116,7 @@ export const submitSignupForm = createAsyncThunk<
 >("auth/submitSignupForm", async (userData, { rejectWithValue }) => {
     try {
         const response = await axios.post<BackendResponse>(
-            "http://localhost:3000/api/users/sign-up",
+            "/api/users/sign-up",
             userData
         );
 

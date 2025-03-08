@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import { prisma } from "@/lib/prisma";
-import { addTopicSChema } from "@/schemas/addTopicSchema";
+import { updateTopicSchema } from "@/schemas/updateTopicSchema";
 
 export async function PUT(request: Request) {
     const session = await getServerSession(authOptions);
@@ -21,7 +21,7 @@ export async function PUT(request: Request) {
                 message: "Please provide all the fields"
             }, { status: 400 })
         }
-        const result = await addTopicSChema.safeParse(body);
+        const result = await updateTopicSchema.safeParse(body);
         if (!result.success) {
             const addTopicSChemaError = {
                 tittle: result.error.format().title?._errors.join(", ") || "",

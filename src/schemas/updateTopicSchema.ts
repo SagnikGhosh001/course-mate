@@ -1,3 +1,6 @@
+
+
+
 import { z } from "zod";
 import { descriptionValidation, titleValidation } from "./topicSchema";
 
@@ -5,9 +8,9 @@ import { descriptionValidation, titleValidation } from "./topicSchema";
 
 
 
-export const addTopicSChema = z.object({
+export const updateTopicSchema = z.object({
     title:titleValidation,
     description:descriptionValidation,
-    topicId:z.string()
+
 
 });

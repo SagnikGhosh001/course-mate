@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options"
 import { prisma } from "@/lib/prisma"
-import { addCourseSChema } from "@/schemas/addCourseSchema";
+import { updateCourseSchema } from "@/schemas/updateCourseSchema";
 import { getServerSession } from "next-auth"
 
 const validRoles = ['creator', 'admin'];
@@ -17,7 +17,7 @@ export async function PUT(request: Request, { params }: { params: { courseid: st
         if (!title || !description || !type || !price) {
             return Response.json({ success: false, message: "Please provide all the fields" }, { status: 400 })
         }
-        const result = await addCourseSChema.safeParse(body);
+        const result = await updateCourseSchema.safeParse(body);
         if (!result.success) {
             const updateSchemaErrors = {
                 title:result.error.format().title?._errors.join(", ") || "",

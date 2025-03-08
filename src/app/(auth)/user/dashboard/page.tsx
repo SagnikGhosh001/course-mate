@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { ShoppingCart, BookOpen, User, Lock, LogOut, Pencil, Menu, X, UserPlus } from "lucide-react";
+import { ShoppingCart, BookOpen, User, Lock, LogOut, Pencil, Menu, X, UserPlus, PanelTopIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -36,6 +36,7 @@ export default function Dashboard() {
     { value: "overview", label: "Overview", icon: <User className="h-5 w-5" /> },
     { value: "courses", label: "Courses", icon: <BookOpen className="h-5 w-5" /> },
     ...(isAdmin ? [{ value: "add-creator", label: "Add New Admin or Creator", icon: <UserPlus className="h-5 w-5" /> }] : []),
+    ...(isAdmin ? [{ value: "add-topic", label: "Add New Topic", icon: <PanelTopIcon className="h-5 w-5" /> }] : []),
     ...(isCreator ? [{ value: "add-course", label: "Create New Course", icon: <BookOpen className="h-5 w-5" /> }] : []),
     { value: "cart", label: "Cart", icon: <ShoppingCart className="h-5 w-5" /> },
     { value: "profile", label: "Profile", icon: <User className="h-5 w-5" /> },
@@ -262,6 +263,30 @@ export default function Dashboard() {
                       </Button>
                       <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                         Manage the list of creators here.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+            {isAdmin && (
+              <TabsContent value="add-topic">
+                <Card className="border border-gray-200 shadow-sm bg-white dark:bg-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-teal-700 dark:text-teal-300 text-base sm:text-lg">
+                      Add New Topic
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Button
+                        asChild
+                        className="bg-teal-500 text-white hover:bg-teal-600 text-xs px-3 py-1 w-full sm:w-auto"
+                      >
+                        <Link href="/topic/new">Add New Topic</Link>
+                      </Button>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
+                        Manage the list of topics here.
                       </p>
                     </div>
                   </CardContent>
