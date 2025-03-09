@@ -39,6 +39,7 @@ export async function GET(
                         }
                     }
                 },
+                topic:true,
                 reviews:true,
                 courseContent:true
 

@@ -5,6 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 
 export async function GET(
+    req: Request,
     {params}:{params:{courseid:string}}
 ){
     const session=await getServerSession(authOptions);
@@ -15,6 +16,17 @@ export async function GET(
         },{status:401})
     }
     try{
+        console.log(params);
+        
+        if (!params || !params.courseid) {
+            console.log("Params or courseid missing");
+            return Response.json(
+              { success: false, message: "Course ID is required" },
+              { status: 400 }
+            );
+          }
+        
+        
         const courseid=params.courseid
         const course=await prisma.course.findUnique({
             where:{id:courseid},
@@ -26,8 +38,10 @@ export async function GET(
                         usercourses:true
                     }
                 },
+                topic: true,
                 owner:{
                     select: {
+                        id: true,
                         name: true,
                         email: true,
                         avatar: true,
@@ -38,7 +52,11 @@ export async function GET(
                         }
                     }
                 },
-                reviews:true,
+                reviews:{
+                    include:{
+                        user:true
+                    }
+                },
                 courseContent:true
 
             } 

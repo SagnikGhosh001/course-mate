@@ -1,7 +1,7 @@
 // app/courses/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,88 +16,38 @@ import {
   Clock,
   Star,
   Search,
+  Loader,
+  TableOfContents,
+  Users,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { getAllCourse } from "@/redux/courseslice";
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [hoveredCourse, setHoveredCourse] = useState<number | null>(null);
-
-  // Sample course data with Udemy-like details
-  const courses = [
-    {
-      id: 1,
-      title: "Master React in 30 Days",
-      instructor: "Jane Doe",
-      duration: "6h 30m",
-      rating: 4.8,
-      reviews: 1245,
-      price: "$49.99",
-      originalPrice: "$99.99",
-      category: "Web Development",
-      description: "Learn React from scratch with hands-on projects.",
-      topics: ["Components", "Hooks", "State Management", "Routing"],
-    },
-    {
-      id: 2,
-      title: "Python for Data Science",
-      instructor: "John Smith",
-      duration: "8h 15m",
-      rating: 4.9,
-      reviews: 2389,
-      price: "$59.99",
-      originalPrice: "$119.99",
-      category: "Data Science",
-      description: "Master data analysis and visualization with Python.",
-      topics: ["Pandas", "NumPy", "Matplotlib", "SciPy"],
-    },
-    {
-      id: 3,
-      title: "UI/UX Design Fundamentals",
-      instructor: "Emily Brown",
-      duration: "4h 45m",
-      rating: 4.7,
-      reviews: 987,
-      price: "$39.99",
-      originalPrice: "$79.99",
-      category: "Design",
-      description: "Design user-friendly interfaces with best practices.",
-      topics: ["Wireframing", "Prototyping", "User Research", "Figma"],
-    },
-    {
-      id: 4,
-      title: "Advanced JavaScript",
-      instructor: "Mike Johnson",
-      duration: "7h 20m",
-      rating: 4.6,
-      reviews: 1567,
-      price: "$54.99",
-      originalPrice: "$109.99",
-      category: "Web Development",
-      description: "Deep dive into modern JavaScript techniques.",
-      topics: ["ES6+", "Async Programming", "Closures", "Modules"],
-    },
-    {
-      id: 5,
-      title: "Machine Learning Basics",
-      instructor: "Sara Lee",
-      duration: "9h 10m",
-      rating: 4.85,
-      reviews: 2034,
-      price: "$69.99",
-      originalPrice: "$139.99",
-      category: "Data Science",
-      description: "Introduction to ML concepts and algorithms.",
-      topics: ["Regression", "Classification", "Clustering", "TensorFlow"],
-    },
-  ];
-
-  const categories = ["All", ...new Set(courses.map((course) => course.category))];
+  const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
+  const { courses, status } = useSelector((state: RootState) => state.course);
+  const dispatch = useDispatch<AppDispatch>()
+  useEffect(() => {
+    dispatch(getAllCourse())
+  }, [dispatch])
+  const categories = ["All", ...new Set(courses.map((course) => course.topic.title))];
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || course.category === selectedCategory;
+    const matchesCategory = selectedCategory === "All" || course.topic.title === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader className="w-10 h-10 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -130,11 +80,10 @@ function Page() {
               <Button
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
-                className={`${
-                  selectedCategory === category
-                    ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                    : "text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
-                } transition-colors duration-200 text-sm`}
+                className={`${selectedCategory === category
+                  ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+                  : "text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  } transition-colors duration-200 text-sm`}
                 onClick={() => setSelectedCategory(category)}
               >
                 {category}
@@ -165,18 +114,19 @@ function Page() {
                       {course.title}
                     </CardTitle>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {course.instructor}
+                      {course.owner.name}
                     </p>
                   </CardHeader>
                   <CardContent className="p-4 pt-0 space-y-2">
                     <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                      <span>{course.rating}</span>
+                      <Users className="h-3 w-3 mr-1" />
+                      <span>{course._count.usercourses}</span>
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 ml-1" />
-                      <span className="ml-1">({course.reviews})</span>
+                      <span className="ml-1">({course._count.reviews})</span>
                     </div>
                     <div className="flex items-center text-xs text-gray-600 dark:text-gray-300">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>{course.duration}</span>
+                      <TableOfContents className="h-3 w-3 mr-1" />
+                      <span>{course._count.courseContent}</span>
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between items-center">
@@ -185,11 +135,11 @@ function Page() {
                         {course.price}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400 line-through ml-2">
-                        {course.originalPrice}
+                        {course.price}
                       </span>
                     </div>
                     <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 text-xs">
-                      {course.category}
+                      {course.topic.title}
                     </Badge>
                   </CardFooter>
                 </Card>
@@ -210,10 +160,16 @@ function Page() {
                         What you will learn:
                       </p>
                       <ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
-                        {course.topics.slice(0, 3).map((topic, idx) => ( // Limited to 3 for brevity
-                          <li key={idx}>{topic}</li>
+                        {course?.courseContent?.map((cc, idx) => (
+                          <>
+                            {cc.title}
+                            <li key={idx}>
+                              {cc.description}
+                            </li>
+                          </>
                         ))}
                       </ul>
+
                     </div>
                     <Button
                       variant="default"

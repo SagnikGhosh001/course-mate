@@ -28,7 +28,9 @@ export async function GET(){
                         email: true,
                         avatar: true,
                     }
-                }
+                },
+                courseContent: true,
+                topic:true
             } 
         })
         if(courses.length>0){

@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options"
 import { prisma } from "@/lib/prisma"
-import { updateCourseSchema } from "@/schemas/updateCourseSchema";
+import { addCourseSChema } from "@/schemas/addCourseSchema";
 import { getServerSession } from "next-auth"
 
 const validRoles = ['creator', 'admin'];
@@ -12,12 +12,14 @@ export async function PUT(request: Request, { params }: { params: { courseid: st
         return Response.json({ success: false, message: "Unauthorized" }, { status: 401 })
     }
     try {
+
+        
         const body = await request.json();
-        const { title, description, type, price } = body;
-        if (!title || !description || !type || !price) {
+        const { title, description, type, price, topicId } = body;
+        if (!title || !description || !type || !price || !topicId) {
             return Response.json({ success: false, message: "Please provide all the fields" }, { status: 400 })
         }
-        const result = await updateCourseSchema.safeParse(body);
+        const result = await addCourseSChema.safeParse(body);
         if (!result.success) {
             const updateSchemaErrors = {
                 title:result.error.format().title?._errors.join(", ") || "",
@@ -36,16 +38,17 @@ export async function PUT(request: Request, { params }: { params: { courseid: st
         if (course.ownerId !== session.user.id) {
             return Response.json({ success: false, message: "Unauthorized" }, { status: 401 })
         }
-        await prisma.course.update({
+        const updateCourse=await prisma.course.update({
             where: { id: courseid },
             data: {
                 title,
                 description,
                 type,
-                price
+                price,
+                topicId
             }
         })
-        return Response.json({ success: true, message: "course deleted successfully" }, { status: 200 })
+        return Response.json({ success: true, message: "course deleted successfully",course:updateCourse }, { status: 200 })
     } catch (error) {
         console.log(error)
         return Response.json({ success: false, message: "something went wrong" }, { status: 500 })
