@@ -56,21 +56,20 @@ function Page() {
         );
     }
 
-    const addCart =async (courseid: string) => {
-        const response=await dispatch(addToCart({courseid})).unwrap()
+    const addCart = async (courseid: string) => {
+        const response = await dispatch(addToCart({ courseid })).unwrap()
         toast.success("Course added to your successfully!", {
             description: response.message,
         })
-        router.push('/user/dashboard')
+        router.push('/user/cart')
 
     }
     const buyNow = async (courseid: string) => {
-        // console.log(courseid);
-        const response=await dispatch(joinCourse(courseid)).unwrap()
+        const response = await dispatch(joinCourse(courseid)).unwrap()
         toast.success("Course joined successfully!", {
             description: response.message,
         })
-        router.push('/user/dashboard')
+        router.push('/user/courses')
     }
 
     return (
@@ -283,7 +282,7 @@ function Page() {
                                 size="lg"
                                 className="w-full bg-black text-white hover:bg-gray-800"
                                 onClick={() => buyNow(course.id)}
-                                disabled={course.usercourses?.some((uc) => uc.user.id === session?.user.id) }
+                                disabled={course.usercourses?.some((uc) => uc.user.id === session?.user.id)}
                             >
                                 Buy Now
                             </Button>

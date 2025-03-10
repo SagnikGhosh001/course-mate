@@ -22,8 +22,10 @@ import {
 import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { getAllCourse } from "@/redux/courseslice";
+import { addToCart, getAllCourse } from "@/redux/courseslice";
 import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -90,6 +92,15 @@ function Page() {
       </div>
     );
   }
+  const router=useRouter()
+  const addCart = async (courseid: string) => {
+    const response = await dispatch(addToCart({ courseid })).unwrap()
+    toast.success("Course added to your successfully!", {
+        description: response.message,
+    })
+    router.push('/user/cart')
+
+}
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -228,6 +239,7 @@ function Page() {
                     <Button
                       variant="default"
                       className="mt-3 w-full bg-blue-600 text-white hover:bg-blue-700 text-xs"
+                      onClick={() => addCart(course.id)}
                     >
                       Add to Cart
                     </Button>

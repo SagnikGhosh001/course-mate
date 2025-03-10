@@ -3,6 +3,72 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios'
 import { toast } from "sonner";
 
+
+interface EnrollCourse {
+    id: string;
+    userId: string;
+    courseId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    course: {
+        id:true
+        title: string;
+        description: string;
+        price: string;
+        type: string;
+        createdAt: Date;
+        updatedAt: Date;
+        parentId: string | null;
+        _count: {
+            courseContent?: number
+            reviews?: number
+            usercourses?: number,
+        }
+        owner: {
+            id: string
+            name: string,
+            email?: string,
+            avatar?: string,
+            _count: {
+                ownedcourses: number
+            }
+        },
+        reviews: Reviews[],
+        topic: Topic,
+    }
+
+}
+interface UserCart {
+    id: string;
+    userId: string;
+    courseId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    course: {
+        id:true
+        title: string;
+        description: string;
+        price: string;
+        type: string;
+        createdAt: Date;
+        updatedAt: Date;
+        parentId: string | null;
+        _count: {
+            courseContent?: number
+            reviews?: number
+            usercourses?: number,
+        }
+        owner: {
+            id: string
+            name: string,
+            email?: string,
+            avatar?: string,
+        },
+        reviews: Reviews[],
+        topic: Topic,
+    }
+
+}
 interface Topic {
     id: string;
     title: string;
@@ -65,8 +131,8 @@ interface Course {
     reviews?: Reviews[],
     courseContent: CourseContent[],
     usercourses?: Usercourses[]
-
     topic: Topic
+    cart: UserCart[]
 }
 
 // Define the expected response from the backend (adjust based on your API)
@@ -77,7 +143,8 @@ interface BackendResponse {
     courses?: Course[]
     ownedCourses?: Course[]
     topicCourses?: Course[]
-
+    enrollCourse?: EnrollCourse[]
+    cart?: UserCart[]
 }
 
 
@@ -90,6 +157,8 @@ interface AuthState {
     userCourses: Course[]
     course: Course | null
     ownedCourses: Course[]
+    enrollCourse: EnrollCourse[]
+    cart:UserCart[]
 }
 
 // Initial state
@@ -99,7 +168,9 @@ const initialState: AuthState = {
     courses: [],
     userCourses: [],
     course: null,
-    ownedCourses: []
+    ownedCourses: [],
+    enrollCourse: [],
+    cart:[]
 };
 
 
@@ -153,7 +224,7 @@ export const joinCourse = createAsyncThunk<
 });
 export const addToCart = createAsyncThunk<
     BackendResponse,
-    {courseid:string},
+    { courseid: string },
     { rejectValue: string }
 >("cart/addToCart", async (id, { rejectWithValue }) => {
     try {
@@ -227,6 +298,50 @@ export const getAllUserCourse = createAsyncThunk<
     try {
         const response = await axios.get<BackendResponse>(
             "/api/course/ownedCourse",
+        );
+
+        return response.data;
+    } catch (error) {
+
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+export const enrollCourses = createAsyncThunk<
+    BackendResponse,
+    void, // No input data
+    { rejectValue: string }
+>("course/enrollCourses", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axios.get<BackendResponse>(
+            "/api/course/enrollCourse",
+        );
+
+        return response.data;
+    } catch (error) {
+
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+export const userCart = createAsyncThunk<
+    BackendResponse,
+    void, // No input data
+    { rejectValue: string }
+>("cart/userCart", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axios.get<BackendResponse>(
+            "/api/cart/get-cart-userid",
         );
 
         return response.data;
@@ -329,9 +444,6 @@ const courseslice = createSlice({
             })
             .addCase(updateCourse.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                // if (action.payload.course) {
-                //     state.course=action.payload.course // Add new topic to list
-                // }
             })
             .addCase(updateCourse.rejected, (state, action) => {
                 state.status = "failed";
@@ -346,6 +458,30 @@ const courseslice = createSlice({
                 state.courses = action.payload.courses || []
             })
             .addCase(getAllCourse.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(enrollCourses.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(enrollCourses.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.enrollCourse = action.payload.enrollCourse || []
+            })
+            .addCase(enrollCourses.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(userCart.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(userCart.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.cart = action.payload.cart || []
+            })
+            .addCase(userCart.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload as string || "An error occurred";
             })
