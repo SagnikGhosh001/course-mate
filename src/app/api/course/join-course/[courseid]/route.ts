@@ -9,7 +9,7 @@ export async function POST(request:Request,{params}:{params:{courseid:string}}) 
     if(!session || !session.user || !session.user.id ){
         return Response.json({sucsess:false,message:"Unauthorized"},{status:401});
     }
-    const courseid=params.courseid;
+    const courseid=await params.courseid;
     try {
         const course = await prisma.course.findUnique({ where: { id: courseid } });
         if (!course) {
@@ -18,6 +18,10 @@ export async function POST(request:Request,{params}:{params:{courseid:string}}) 
         const checkUser = await prisma.user.findUnique({ where: { id:user.id } });
         if (!checkUser) {
             return Response.json({ success: false, message: "user not found" }, { status: 404 });
+        }
+        const checking=await prisma.userCourse.findUnique({where:{userId_courseId:{userId:user.id,courseId:courseid}}});
+        if(checking){
+            return Response.json({ success: false, message: "you have already joined this course" }, { status: 400 });
         }
         const participation = await prisma.userCourse.upsert({
             where: {

@@ -20,6 +20,15 @@ export async function POST(request: Request) {
         if (!course) {
             return Response.json({ success: false, message: "course not found" }, { status: 404 });
         }
+        const checking= await prisma.cart.findFirst({
+            where:{
+                courseId:courseid,
+                userId:user.id
+            }
+        })
+        if(checking){
+            return Response.json({ success: false, message: "you have already added this course to cart" }, { status: 400 });
+        }
         const cart = await prisma.cart.create({
             data: {
                 user: { connect: { id: user.id } },

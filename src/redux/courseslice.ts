@@ -11,20 +11,27 @@ interface Topic {
     createdAt: Date
     updatedAt: Date
 }
-
+interface Usercourses {
+    user: {
+        id: string,
+        name: string,
+        email: string,
+        avatar: string
+    }
+}
 interface Reviews {
     rating: number
     message: string
     createdAt: Date
     updatedAt: Date
-    owner:{
-        name:string
-        avatar?:string
-        email:string
+    owner: {
+        name: string
+        avatar?: string
+        email: string
     }
 }
 
-interface CourseContent{
+interface CourseContent {
     id: string
     title: string,
     description: string
@@ -55,9 +62,11 @@ interface Course {
             ownedcourses: number
         }
     },
-    reviews?:Reviews[],
+    reviews?: Reviews[],
     courseContent: CourseContent[],
-    topic:Topic
+    usercourses?: Usercourses[]
+
+    topic: Topic
 }
 
 // Define the expected response from the backend (adjust based on your API)
@@ -68,7 +77,7 @@ interface BackendResponse {
     courses?: Course[]
     ownedCourses?: Course[]
     topicCourses?: Course[]
-    
+
 }
 
 
@@ -79,7 +88,8 @@ interface AuthState {
     error: string | null;
     courses: Course[];
     userCourses: Course[]
-    course:Course | null
+    course: Course | null
+    ownedCourses: Course[]
 }
 
 // Initial state
@@ -88,7 +98,8 @@ const initialState: AuthState = {
     error: null,
     courses: [],
     userCourses: [],
-    course: null
+    course: null,
+    ownedCourses: []
 };
 
 
@@ -118,12 +129,57 @@ export const addCourse = createAsyncThunk<
         return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
     }
 });
+export const joinCourse = createAsyncThunk<
+    BackendResponse,
+    string,
+    { rejectValue: string }
+>("course/joinCourse", async (id, { rejectWithValue }) => {
+    try {
+        const response = await axios.post<BackendResponse>(
+            `/api/course/join-course/${id}`
+        );
+
+        return response.data;
+    } catch (error) {
+
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
+export const addToCart = createAsyncThunk<
+    BackendResponse,
+    {courseid:string},
+    { rejectValue: string }
+>("cart/addToCart", async (id, { rejectWithValue }) => {
+    try {
+        const response = await axios.post<BackendResponse>(
+            "/api/cart/add-cart",
+            id
+        );
+
+        return response.data;
+    } catch (error) {
+
+        if (axios.isAxiosError(error) && error.response) {
+            toast.error(error.response.data.message);
+            // Handle Axios-specific errors with response data
+            return rejectWithValue(error.response.data.message || "Failed to submit form");
+        }
+        toast.error("some error occured");
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
+    }
+});
 export const updateCourse = createAsyncThunk<
     BackendResponse,
-    { title: string; description: string; type: string; price: string; topicId: string,courseid:string },
+    { title: string; description: string; type: string; price: string; topicId: string, courseid: string },
     { rejectValue: string }
 >("course/updateCourse", async (courseData, { rejectWithValue }) => {
-    try {        
+    try {
         const response = await axios.put<BackendResponse>(
             `/api/course/updateCourse/${courseData.courseid}`,
             courseData
@@ -186,22 +242,22 @@ export const getAllUserCourse = createAsyncThunk<
     }
 });
 export const addCourseContent = createAsyncThunk<
-  BackendResponse,
-  { courseid: string; title: string; description: string },
-  { rejectValue: string }
+    BackendResponse,
+    { courseid: string; title: string; description: string },
+    { rejectValue: string }
 >("course/addCourseContent", async (contentData, { rejectWithValue }) => {
-  try {
-    const response = await axios.post<BackendResponse>("/api/courseContent/addCourseContent", contentData);
-    if (!response.data.success) {
-      throw new Error(response.data.message);
+    try {
+        const response = await axios.post<BackendResponse>("/api/courseContent/addCourseContent", contentData);
+        if (!response.data.success) {
+            throw new Error(response.data.message);
+        }
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return rejectWithValue(error.response.data.message || "Failed to add course content");
+        }
+        return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
     }
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      return rejectWithValue(error.response.data.message || "Failed to add course content");
-    }
-    return rejectWithValue(error instanceof Error ? error.message : "Unknown error");
-  }
 });
 export const getCourseById = createAsyncThunk<
     BackendResponse,
@@ -242,6 +298,28 @@ const courseslice = createSlice({
                 }
             })
             .addCase(addCourse.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(joinCourse.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(joinCourse.fulfilled, (state, action) => {
+                state.status = "succeeded";
+            })
+            .addCase(joinCourse.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload as string || "An error occurred";
+            })
+            .addCase(addToCart.pending, (state) => {
+                state.status = "loading";
+                state.error = null; // Clear previous errors
+            })
+            .addCase(addToCart.fulfilled, (state, action) => {
+                state.status = "succeeded";
+            })
+            .addCase(addToCart.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload as string || "An error occurred";
             })
@@ -298,14 +376,14 @@ const courseslice = createSlice({
             .addCase(addCourseContent.pending, (state) => {
                 state.status = "loading";
                 state.error = null;
-              })
-              .addCase(addCourseContent.fulfilled, (state, action) => {
+            })
+            .addCase(addCourseContent.fulfilled, (state, action) => {
                 state.status = "succeeded";
-              })
-              .addCase(addCourseContent.rejected, (state, action) => {
+            })
+            .addCase(addCourseContent.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload || "An error occurred";
-              });
+            });
     },
 });
 
