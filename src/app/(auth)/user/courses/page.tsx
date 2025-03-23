@@ -19,7 +19,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { enrollCourses, getAllUserCourse } from "@/redux/courseslice";
 
-export default function userCoursesPage() {
+export default function UserCoursesPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { status: courseStatus, enrollCourse } = useSelector(
     (state: RootState) => state.course

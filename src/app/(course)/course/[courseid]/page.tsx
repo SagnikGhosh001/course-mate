@@ -30,7 +30,7 @@ function Page() {
     useEffect(() => {
 
         dispatch(getCourseById(courseid.courseid))
-    }, [dispatch])
+    }, [dispatch,courseid.courseid])
     const router = useRouter()
     const { status, error, course } = useSelector((state: RootState) => state.course)
     const [showMore, setShowMore] = React.useState(false);

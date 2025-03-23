@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 function Page() {
+  const router=useRouter()
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
@@ -92,7 +93,7 @@ function Page() {
       </div>
     );
   }
-  const router=useRouter()
+
   const addCart = async (courseid: string) => {
     const response = await dispatch(addToCart({ courseid })).unwrap()
     toast.success("Course added to your successfully!", {

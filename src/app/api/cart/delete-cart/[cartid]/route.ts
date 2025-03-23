@@ -2,8 +2,9 @@ import { getServerSession, User } from "next-auth";
 
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { NextRequest } from "next/server";
 
-export async function DELETE({params}:{params:{cartid:string}}) {
+export async function DELETE(req:NextRequest,{params}:{params:{cartid:string}}) {
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User;
     if (!session || !session.user || !session.user.id) {
